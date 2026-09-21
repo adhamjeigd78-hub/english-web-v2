@@ -1,4 +1,3 @@
-
 (() => {
   'use strict';
 
@@ -228,9 +227,44 @@
     $('#achievementGrid').innerHTML=list.map(a=>`<article class="achievement-card ${a[3]?'unlocked':''}"><div class="aicon">${a[0]}</div><h3>${a[1]}</h3><p>${a[2]}</p></article>`).join('');
   }
 
-  function pickQuestionPool(mode,unit,count){
+  // Difficulty is derived from the original question bank.
+  // The labels are used only to filter the custom exam; they do not change the question text.
+  function getQuestionDifficulty(q){
+    if(q.difficulty) return String(q.difficulty).toLowerCase();
+    const text=(q.question+' '+q.explanation+' '+q.answers.join(' ')).toLowerCase();
+    const hardSignals=['if ','would ','although','passive','past participle','was/were','while','when ','comparative','superlative','modal','condition'];
+    const mediumSignals=['am/is/are','do/does','did ','because','so ','but ','present','past','should','must','can ','will '];
+    if(hardSignals.some(x=>text.includes(x))) return 'hard';
+    if(mediumSignals.some(x=>text.includes(x))) return 'medium';
+    return 'easy';
+  }
+
+  function filteredCustomPool(){
+    const unit=$('#customUnit')?.value || 'all';
+    const difficulty=$('#customDifficulty')?.value || 'all';
+    let pool=COURSE.questions.slice();
+    if(unit!=='all') pool=pool.filter(q=>q.unit===Number(unit));
+    if(difficulty!=='all') pool=pool.filter(q=>getQuestionDifficulty(q)===difficulty);
+    return pool;
+  }
+
+  function updateCustomCountOptions(){
+    const select=$('#customCount');
+    if(!select) return;
+    const total=filteredCustomPool().length;
+    const preferred=[5,10,15,20,30,40,50,60,90];
+    const counts=preferred.filter(n=>n<=total);
+    if(total && !counts.includes(total)) counts.push(total);
+    counts.sort((a,b)=>a-b);
+    select.innerHTML=counts.length ? counts.map(n=>`<option value="${n}">${n} questions</option>`).join('') : '<option value="0">No questions available</option>';
+    const available=$('#customAvailable');
+    if(available) available.textContent=total ? `${total} questions available for this selection.` : 'No questions match this selection.';
+  }
+
+  function pickQuestionPool(mode,unit,count,difficulty='all'){
     let pool=COURSE.questions.slice();
     if(unit!=='all')pool=pool.filter(q=>q.unit===Number(unit));
+    if(difficulty!=='all')pool=pool.filter(q=>getQuestionDifficulty(q)===String(difficulty).toLowerCase());
     if(mode==='mistakes')pool=state.mistakes.slice();
     if(mode==='lesson')pool=pool.filter(()=>true);
     pool=shuffle(pool);
@@ -246,7 +280,7 @@
     const q=quiz.questions[quiz.index];
     if(!q){finishQuiz();return}
     quiz.selected=false;
-    $('#examModal').innerHTML=`<div class="modal-box"><div class="modal-top"><div><div class="eyebrow">${escapeHtml(quiz.mode)}</div><h2>${escapeHtml(quiz.title)}</h2></div><button class="close-btn" id="closeQuiz">×</button></div><div class="quiz-progress"><div style="width:${(quiz.index/quiz.questions.length)*100}%"></div></div><div class="quiz-meta"><span>${quiz.index+1} / ${quiz.questions.length}</span><span>Unit ${q.unit} · Lesson ${q.lesson}</span></div><div class="quiz-question">${escapeHtml(q.question)}</div><div class="answer-list">${q.answers.map((a,i)=>`<button class="answer-btn" data-answer="${i}">${String.fromCharCode(65+i)}. ${escapeHtml(a)}</button>`).join('')}</div><div class="feedback" id="feedback"></div><div class="quiz-footer"><small>+10 XP for a correct answer</small><button class="btn btn-primary" id="nextQuiz" disabled>${quiz.index===quiz.questions.length-1?'Finish':'Next →'}</button></div></div>`;
+    $('#examModal').innerHTML=`<div class="modal-box"><div class="modal-top"><div><div class="eyebrow">${escapeHtml(quiz.mode)}</div><h2>${escapeHtml(quiz.title)}</h2></div><button class="close-btn" id="closeQuiz">×</button></div><div class="quiz-progress"><div style="width:${(quiz.index/quiz.questions.length)*100}%"></div></div><div class="quiz-meta"><span>${quiz.index+1} / ${quiz.questions.length}</span><span>Unit ${q.unit} · Lesson ${q.lesson} · ${getQuestionDifficulty(q).toUpperCase()}</span></div><div class="quiz-question">${escapeHtml(q.question)}</div><div class="answer-list">${q.answers.map((a,i)=>`<button class="answer-btn" data-answer="${i}">${String.fromCharCode(65+i)}. ${escapeHtml(a)}</button>`).join('')}</div><div class="feedback" id="feedback"></div><div class="quiz-footer"><small>+10 XP for a correct answer</small><button class="btn btn-primary" id="nextQuiz" disabled>${quiz.index===quiz.questions.length-1?'Finish':'Next →'}</button></div></div>`;
     $('#closeQuiz').addEventListener('click',closeQuiz);$$('[data-answer]').forEach(b=>b.addEventListener('click',()=>selectQuizAnswer(Number(b.dataset.answer))));$('#nextQuiz').addEventListener('click',nextQuiz);
   }
   function selectQuizAnswer(i){
@@ -280,10 +314,20 @@
     $$('[data-practice]').forEach(b=>b.addEventListener('click',()=>{
       const mode=b.dataset.practice;
       if(mode==='quick')startQuiz('Quick Practice',pickQuestionPool('quick','all',10),'Quick Practice');
-      if(mode==='custom')startQuiz('Custom Exam',pickQuestionPool('custom',$('#customUnit').value,$('#customCount').value),'Custom Exam');
+      if(mode==='custom'){
+        const unit=$('#customUnit').value;
+        const difficulty=$('#customDifficulty').value;
+        const count=Number($('#customCount').value);
+        const pool=pickQuestionPool('custom',unit,count,difficulty);
+        if(!pool.length){flashToast('No questions match your selection. Try another difficulty or unit.','bad');return;}
+        startQuiz(`Custom Exam — ${unit==='all'?'All Units':`Unit ${unit}`} — ${difficulty==='all'?'All Levels':difficulty[0].toUpperCase()+difficulty.slice(1)}`,pool,'Custom Exam');
+      }
       if(mode==='boss')startQuiz('Boss Exam',pickQuestionPool('boss','all',30),'Boss Exam');
     }));
     $('#soundToggle').addEventListener('click',()=>{soundOn=!soundOn;localStorage.setItem(SOUND_STORAGE,soundOn?'on':'off');$('#soundState').textContent=soundOn?'On':'Off';$('#soundBadge').textContent=`Sound: ${soundOn?'On':'Off'}`;if(soundOn)sound('correct')});
+    $('#customUnit').addEventListener('change',updateCustomCountOptions);
+    $('#customDifficulty').addEventListener('change',updateCustomCountOptions);
+    updateCustomCountOptions();
     $('#signOut').addEventListener('click',()=>{localStorage.removeItem(USER_STORAGE);showAuth();$('#studentName').value='';});
   }
   function renderSoundState(){$('#soundState').textContent=soundOn?'On':'Off';$('#soundBadge').textContent=`Sound: ${soundOn?'On':'Off'}`}
