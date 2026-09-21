@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6d4aff" />
+  <meta name="description" content="2 Prep Academy — Grade 8 English learning companion" />
+  <title>2 Prep Academy — by trx.ad</title>
+  <link rel="preconnect" href="https://accounts.google.com">
+  <link rel="preconnect" href="https://www.youtube.com">
+  <link rel="stylesheet" href="style.css" />
+  <script src="auth-config.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div id="soundBadge" class="sound-badge" aria-live="polite">Sound: On</div>
+
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-glow glow-one"></div><div class="auth-glow glow-two"></div>
+    <div class="auth-card">
+      <div class="auth-brand"><div class="brand-mark">2P</div><div><b>2 Prep Academy</b><span>by trx.ad</span></div></div>
+      <div class="auth-kicker">GRADE 8 • ENGLISH • TERM 1</div>
+      <h1>Learn it. Practice it. <span>Master it.</span></h1>
+      <p>Lessons, grammar, vocabulary, videos, practice, progress and a mistake bank — all in one place.</p>
+      <label class="field-label" for="studentName">Your name</label>
+      <input id="studentName" class="text-input" type="text" maxlength="30" placeholder="Enter your name" autocomplete="name" />
+      <button id="nameContinue" class="btn btn-primary btn-xl">Continue with my name →</button>
+      <div class="or"><span>or</span></div>
+      <div id="googleButtonWrap" class="google-wrap"></div>
+      <button id="googleFallback" class="btn btn-google btn-xl">Continue with Google <span>G</span></button>
+      <p class="auth-note">Google sign-in is optional. Name sign-in works offline and saves your progress on this browser.</p>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand-row"><div class="brand-mark small">2P</div><div><b>2 Prep Academy</b><span>by trx.ad</span></div></div>
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-page="dashboard"><span>⌂</span>Dashboard</button>
+          <button class="nav-item" data-page="units"><span>▦</span>Units & Lessons</button>
+          <button class="nav-item" data-page="grammar"><span>✦</span>Grammar Master</button>
+          <button class="nav-item" data-page="practice"><span>⚡</span>Practice</button>
+          <button class="nav-item" data-page="mistakes"><span>◈</span>My Mistakes</button>
+          <button class="nav-item" data-page="achievements"><span>★</span>Achievements</button>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <button id="soundToggle" class="mini-row"><span>🔊</span><span>Sounds</span><b id="soundState">On</b></button>
+        <button id="signOut" class="mini-row"><span>↪</span><span>Switch account</span></button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow">2 PREP • ENGLISH</div><h2 id="pageTitle">Welcome back</h2><p id="pageSubtitle">Your learning hub for Term 1.</p></div>
+        <div class="top-actions"><div class="streak-pill">🔥 <span id="topStreak">0</span> day streak</div><div class="avatar" id="avatar">TR</div></div>
+      </header>
+
+      <section id="dashboard" class="page active">
+        <div class="hero-grid">
+          <article class="hero-card">
+            <div class="hero-copy"><div class="hero-chip">YOUR NEXT STEP</div><h1>Ready to level up, <span id="heroName">Student</span>?</h1><p>Pick a lesson, watch the explanation, then prove your understanding with targeted practice.</p><div class="hero-actions"><button class="btn btn-primary" data-page-jump="units">Explore Units</button><button class="btn btn-soft" data-page-jump="grammar">Master Grammar</button></div></div>
+            <div class="hero-art"><div class="orbit o1"></div><div class="orbit o2"></div><div class="hero-node">2<br><small>PREP</small></div><div class="floating-note n1">+10 XP</div><div class="floating-note n2">✓ Grammar</div></div>
+          </article>
+          <article class="mission-card"><div class="eyebrow">DAILY MISSION</div><h3>Small steps. Big streak.</h3><div class="mission-line"><span>Answer 10 questions</span><b id="missionQ">○</b></div><div class="mission-line"><span>Complete a lesson</span><b id="missionL">○</b></div><div class="mission-line"><span>Review mistakes</span><b id="missionM">○</b></div><div class="mission-progress"><div id="missionProgress"></div></div><small id="missionText">0 / 3 complete</small></article>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card"><span class="stat-icon purple">★</span><div><small>XP</small><strong id="xpValue">0</strong></div></article>
+          <article class="stat-card"><span class="stat-icon green">✓</span><div><small>Accuracy</small><strong id="accuracyValue">0%</strong></div></article>
+          <article class="stat-card"><span class="stat-icon blue">⚡</span><div><small>Questions solved</small><strong id="solvedValue">0</strong></div></article>
+          <article class="stat-card"><span class="stat-icon orange">🔥</span><div><small>Streak</small><strong id="streakValue">0</strong></div></article>
+        </div>
+
+        <div class="two-col">
+          <article class="panel"><div class="panel-head"><div><div class="eyebrow">YOUR COURSE</div><h3>Unit progress</h3></div><button class="text-btn" data-page-jump="units">View all →</button></div><div id="unitProgress"></div></article>
+          <article class="panel"><div class="panel-head"><div><div class="eyebrow">QUICK ACCESS</div><h3>Jump back in</h3></div></div><div class="quick-list"><button class="quick-row" data-page-jump="practice"><span>⚡</span><div><b>Quick Practice</b><small>10 targeted questions</small></div><i>→</i></button><button class="quick-row" data-page-jump="mistakes"><span>◈</span><div><b>Practice My Mistakes</b><small>Turn errors into XP</small></div><i>→</i></button><button class="quick-row" data-page-jump="grammar"><span>✦</span><div><b>Grammar Master</b><small>Teacher-style explanations</small></div><i>→</i></button></div></article>
+        </div>
+      </section>
+
+      <section id="units" class="page">
+        <div class="page-hero"><div><div class="eyebrow">COURSE MAP</div><h1>Units & Lessons</h1><p>Every first-term unit, every lesson, clear learning goals, grammar and video support.</p></div><div class="course-stat"><strong>6</strong><span>Units</span></div></div>
+        <div id="unitCards" class="unit-cards"></div>
+        <div id="lessonView" class="lesson-view hidden"></div>
+      </section>
+
+      <section id="grammar" class="page">
+        <div class="page-hero"><div><div class="eyebrow">GRAMMAR MASTER</div><h1>Grammar, explained like a great teacher.</h1><p>Rule → meaning → example → trap → mini practice. No mystery steps.</p></div><div class="course-stat"><strong>6</strong><span>Core grammar topics</span></div></div>
+        <div id="grammarCards" class="grammar-grid"></div>
+      </section>
+
+      <section id="practice" class="page">
+        <div class="page-hero"><div><div class="eyebrow">PRACTICE LAB</div><h1>Practice with purpose.</h1><p>Choose a mode, solve, get instant feedback, earn XP and build your mistake bank.</p></div></div>
+        <div class="practice-grid">
+          <article class="practice-card featured"><div class="big-icon">⚡</div><div><span class="tag">FAST</span><h3>Quick Practice</h3><p>10 mixed questions across the term.</p></div><button class="btn btn-primary" data-practice="quick">Start</button></article>
+          <article class="practice-card"><div class="big-icon">🧪</div><div><span class="tag">CUSTOM</span><h3>Custom Exam</h3><p>Choose a unit and question count.</p><div class="select-row"><select id="customUnit"><option value="all">All units</option><option value="1">Unit 1</option><option value="2">Unit 2</option><option value="3">Unit 3</option><option value="4">Unit 4</option><option value="5">Unit 5</option><option value="6">Unit 6</option></select><select id="customCount"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="60">60</option><option value="90">90</option></select></div></div><button class="btn btn-primary" data-practice="custom">Start</button></article>
+          <article class="practice-card boss"><div class="big-icon">👑</div><div><span class="tag">CHALLENGE</span><h3>Boss Exam</h3><p>30 questions. No shortcuts.</p></div><button class="btn btn-dark" data-practice="boss">Enter</button></article>
+        </div>
+        <div class="practice-note">All practice questions in this project are original study questions built around the course topics; they are not a reproduction of the textbook’s exercises.</div>
+      </section>
+
+      <section id="mistakes" class="page">
+        <div class="page-hero"><div><div class="eyebrow">SMART REVIEW</div><h1>My Mistakes</h1><p>Every wrong answer becomes a future strength.</p></div></div>
+        <div id="mistakesList" class="mistakes-panel panel"></div>
+      </section>
+
+      <section id="achievements" class="page">
+        <div class="page-hero"><div><div class="eyebrow">MILESTONES</div><h1>Achievements</h1><p>Collect badges as you learn.</p></div></div>
+        <div id="achievementGrid" class="achievement-grid"></div>
+      </section>
+    </main>
+
+    <nav class="mobile-nav">
+      <button class="active" data-page="dashboard"><span>⌂</span><small>Home</small></button>
+      <button data-page="units"><span>▦</span><small>Units</small></button>
+      <button data-page="grammar"><span>✦</span><small>Grammar</small></button>
+      <button data-page="practice"><span>⚡</span><small>Practice</small></button>
+      <button data-page="mistakes"><span>◈</span><small>Mistakes</small></button>
+    </nav>
+  </div>
+
+  <div id="lessonModal" class="modal hidden"></div>
+  <div id="examModal" class="modal hidden"></div>
+  <div id="toastStack" class="toast-stack"></div>
+  <div id="celebration" class="celebration hidden"><div class="celebration-card"><div class="celebration-icon" id="celebrationIcon">🏆</div><div class="eyebrow">NICE WORK</div><h2 id="celebrationTitle">Excellent!</h2><p id="celebrationText">You did it.</p><div class="celebration-xp" id="celebrationXp">+0 XP</div><button class="btn btn-primary" id="celebrationClose">Keep learning →</button></div><div id="confetti"></div></div>
+</body>
+</html>
